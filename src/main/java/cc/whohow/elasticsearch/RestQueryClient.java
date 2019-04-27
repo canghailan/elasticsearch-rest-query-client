@@ -18,6 +18,7 @@ import java.util.concurrent.CompletableFuture;
 public class RestQueryClient {
     private final String query = "/_xpack/sql?format=json";
     private final String close = "/_xpack/sql/close";
+    private final String translate = "/_xpack/sql/translate";
     private final RestClient restClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -67,6 +68,14 @@ public class RestQueryClient {
                 close,
                 Collections.emptyMap(),
                 jsonBody(Collections.singletonMap("cursor", cursor)));
+    }
+
+    public JsonNode translate(QueryRequest queryRequest) throws IOException {
+        return json(restClient.performRequest(
+                HttpPost.METHOD_NAME,
+                translate,
+                Collections.emptyMap(),
+                jsonBody(queryRequest)));
     }
 
     public JsonNode query(QueryRequest queryRequest) throws IOException {

@@ -19,6 +19,17 @@ public class TestRestQueryClient {
     }
 
     @Test
+    public void testPreparedQueryRequest() throws IOException {
+        PreparedQueryRequest preparedQueryRequest = new PreparedQueryRequest(
+                "select * from \":table\" limit :cnt"
+        );
+        QueryRequest queryRequest = preparedQueryRequest.apply(
+                "table", ".monitoring-kibana-6-2019.04.26",
+                "cnt", 10);
+        System.out.println(queryRequest.getQuery());
+    }
+
+    @Test
     public void test() throws IOException {
         RestClient restClient = RestClient.builder(HttpHost.create(
                 "")).build();
@@ -27,6 +38,8 @@ public class TestRestQueryClient {
         try (Stream<Table> stream = restQueryClient.executeQuery(Table.class, "show tables").stream()) {
             stream.forEach(System.out::println);
         }
+
+        System.out.println(restQueryClient.translate(new QueryRequest("select * from \".monitoring-kibana-6-2019.04.26\" limit 10")));
         try (Stream<JsonNode> stream = restQueryClient.executeQuery("select * from \".monitoring-kibana-6-2019.04.26\" limit 10").stream()) {
             stream.forEach(System.out::println);
         }
@@ -35,10 +48,10 @@ public class TestRestQueryClient {
                 .thenAccept(System.out::println)
                 .join();
 
-        Iterable<JsonNode> array = restQueryClient.executeQueryAsync("show tables")
+        Iterable<JsonNode> tables = restQueryClient.executeQueryAsync("show tables")
                 .thenApply(QueryResult::collect)
                 .join();
-        System.out.println(array);
+        System.out.println(tables);
     }
 
     static class Table {
