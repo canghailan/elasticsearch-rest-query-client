@@ -3,6 +3,7 @@
 * 仅依赖RestClient、Jackson
 * 支持Stream
 * 支持CompletableFuture
+* 同步模式自动处理Cursor
 * Lazy读取、解析
 
 
