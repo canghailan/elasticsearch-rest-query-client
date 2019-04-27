@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 
-public class JsonObjectQueryResult implements QueryResult<ObjectNode> {
+public class JsonObjectQueryResult implements QueryResult<JsonNode> {
     private final JsonNodeFactory jsonNodeFactory;
     private final JsonQueryResult result;
 
@@ -58,6 +58,7 @@ public class JsonObjectQueryResult implements QueryResult<ObjectNode> {
         result.close();
     }
 
+    @Override
     public ArrayNode collect() {
         try {
             ArrayNode array = jsonNodeFactory.arrayNode();

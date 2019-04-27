@@ -49,6 +49,7 @@ public class ObjectQueryResult<T> implements QueryResult<T> {
         return iterator.next();
     }
 
+    @Override
     public List<T> collect() {
         try {
             List<T> list = new ArrayList<>();

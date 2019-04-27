@@ -3,7 +3,6 @@ package cc.whohow.elasticsearch;
 import cc.whohow.elasticsearch.impl.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.elasticsearch.client.Response;
@@ -26,11 +25,11 @@ public class RestQueryClient {
         this.restClient = restClient;
     }
 
-    public QueryResult<ObjectNode> executeQuery(String query) throws IOException {
+    public QueryResult<JsonNode> executeQuery(String query) throws IOException {
         return executeQuery(new QueryRequest(query));
     }
 
-    public QueryResult<ObjectNode> executeQuery(QueryRequest query) throws IOException {
+    public QueryResult<JsonNode> executeQuery(QueryRequest query) throws IOException {
         return mapping(new JsonQueryResultFetcher(this, query));
     }
 
@@ -42,11 +41,11 @@ public class RestQueryClient {
         return mapping(new JsonQueryResultFetcher(this, query), type);
     }
 
-    public CompletableFuture<QueryResult<ObjectNode>> executeQueryAsync(String query) {
+    public CompletableFuture<QueryResult<JsonNode>> executeQueryAsync(String query) {
         return executeQueryAsync(new QueryRequest(query));
     }
 
-    public CompletableFuture<QueryResult<ObjectNode>> executeQueryAsync(QueryRequest query) {
+    public CompletableFuture<QueryResult<JsonNode>> executeQueryAsync(QueryRequest query) {
         return queryAsync(query)
                 .thenApply(this::parse)
                 .thenApply(this::mapping);

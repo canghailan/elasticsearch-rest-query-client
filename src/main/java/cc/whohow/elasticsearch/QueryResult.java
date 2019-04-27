@@ -23,4 +23,6 @@ public interface QueryResult<T> extends Iterator<T>, Closeable {
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(this, 0), false)
                 .onClose(this::closeQuietly);
     }
+
+    Iterable<T> collect();
 }

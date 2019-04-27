@@ -1,7 +1,7 @@
 package cc.whohow.elasticsearch;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.junit.Test;
@@ -12,10 +12,10 @@ import java.util.stream.Stream;
 public class TestRestQueryClient {
     @Test
     public void testQueryRequest() throws IOException {
-       QueryRequest queryRequest = new QueryRequest();
-       queryRequest.setQuery("show tables");
-       queryRequest.setFetchSize(1000);
-       System.out.println(new ObjectMapper().writeValueAsString(queryRequest));
+        QueryRequest queryRequest = new QueryRequest();
+        queryRequest.setQuery("show tables");
+        queryRequest.setFetchSize(1000);
+        System.out.println(new ObjectMapper().writeValueAsString(queryRequest));
     }
 
     @Test
@@ -27,13 +27,18 @@ public class TestRestQueryClient {
         try (Stream<Table> stream = restQueryClient.executeQuery(Table.class, "show tables").stream()) {
             stream.forEach(System.out::println);
         }
-        try (Stream<ObjectNode> stream = restQueryClient.executeQuery("select * from \".monitoring-kibana-6-2019.04.26\" limit 10").stream()) {
+        try (Stream<JsonNode> stream = restQueryClient.executeQuery("select * from \".monitoring-kibana-6-2019.04.26\" limit 10").stream()) {
             stream.forEach(System.out::println);
         }
 
         restQueryClient.queryAsync(new QueryRequest("show tables"))
                 .thenAccept(System.out::println)
                 .join();
+
+        Iterable<JsonNode> array = restQueryClient.executeQueryAsync("show tables")
+                .thenApply(QueryResult::collect)
+                .join();
+        System.out.println(array);
     }
 
     static class Table {
