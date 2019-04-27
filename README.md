@@ -14,21 +14,38 @@ RestClient restClient = RestClient.builder(HttpHost.create(
         "")).build();
 RestQueryClient restQueryClient = new RestQueryClient(restClient);
 
-try (Stream<Table> stream = restQueryClient.executeQuery(Table.class, "show tables").stream()) {
-    stream.forEach(System.out::println);
-}
+String showTables = "show tables";
 
-System.out.println(restQueryClient.translate(new QueryRequest("select * from \".monitoring-kibana-6-2019.04.26\" limit 10")));
-try (Stream<JsonNode> stream = restQueryClient.executeQuery("select * from \".monitoring-kibana-6-2019.04.26\" limit 10").stream()) {
-    stream.forEach(System.out::println);
-}
-
-restQueryClient.queryAsync(new QueryRequest("show tables"))
+// 原始异步查询
+restQueryClient.queryAsync(new QueryRequest(showTables))
         .thenAccept(System.out::println)
         .join();
 
-Iterable<JsonNode> tables = restQueryClient.executeQueryAsync("show tables")
+// 异步查询
+Iterable<JsonNode> tables = restQueryClient.executeQueryAsync(showTables)
         .thenApply(QueryResult::collect)
         .join();
 System.out.println(tables);
+
+// 流式查询，并转为实体对象
+try (Stream<Table> stream = restQueryClient.executeQuery(Table.class, showTables).stream()) {
+    stream.forEach(System.out::println);
+}
+
+// 模板查询
+PreparedQueryRequest preparedSelect = new PreparedQueryRequest(
+        "select * from \":table\" limit :cnt"
+);
+// 查询语句生成
+QueryRequest select = preparedSelect.apply(
+        "table", ".monitoring-kibana-6-2019.04.26",
+        "cnt", 20);
+select.setFetchSize(10);
+
+// 翻译查询
+System.out.println(restQueryClient.translate(select));
+// 流式查询，支持Cursor自动处理
+try (Stream<JsonNode> stream = restQueryClient.executeQuery(select).stream()) {
+    stream.forEach(System.out::println);
+}
 ```
